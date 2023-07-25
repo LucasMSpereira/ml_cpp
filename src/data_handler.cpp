@@ -131,7 +131,7 @@ void data_handler::split_data()
     }
 
     // Test Data
-		std::cout << "Preparing ttest split." << std::endl;
+		std::cout << "Preparing test split." << std::endl;
 
     count = 0;
     while(count < test_size)
