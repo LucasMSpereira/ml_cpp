@@ -1,5 +1,14 @@
 #include "..\include\data_handler.h"
 
+std::random_device rd;
+std::mt19937 gen(rd());
+ 
+int randomNum(int low, int high)
+{
+    std::uniform_int_distribution<> dist(low, high);
+    return dist(gen);
+}
+
 data_handler::data_handler()
 {
     data_array = new std::vector<data *>;
@@ -7,22 +16,18 @@ data_handler::data_handler()
     training_data = new std::vector<data *>;
     validation_data = new std::vector<data *>;
 }
-data_handler::~data_handler()
-{
-    // Free Dynamically Allocated stuff
-}
+data_handler::~data_handler(){/* Free dynamically allocated memory.*/}
 
-int data_handler::get_class_counts()
-{
-    return num_classes;
-}
+int data_handler::get_class_counts(){return num_classes;}
 
 void data_handler::read_feature_vector(std::string path)
 {
     uint32_t header[4]; // Magic // Num Images // Row Size // Col Size
     unsigned char bytes[4];
-
-    FILE *f = fopen(path.c_str(), "r");
+		
+		std::cout << "Data handler: read feature vector" << std::endl;
+		
+    FILE *f = fopen(path.c_str(), "rb");
     if(f)                               // f = fopen(path.c_str(), "r");
     {
         for(int i = 0; i < 4; i++)
@@ -49,7 +54,7 @@ void data_handler::read_feature_vector(std::string path)
                     d->append_to_feature_vector(element[0]);
                 } else
                 {
-                    std::cout << "Error Reading from File." << j << std::endl;
+                    std::cout << "Error reading from file. " << j << std::endl;
                     exit(1);
                 }
             }
@@ -59,14 +64,15 @@ void data_handler::read_feature_vector(std::string path)
     } else
     {
         std::cout << "Could not find the file." << std::endl;
-        exit(1);
+        exit(2);
     }
 }
 void data_handler::read_feature_labels(std::string path)
 {
     uint32_t header[2]; // Magic // Images 
     unsigned char bytes[4];
-    FILE *f = fopen(path.c_str(), "r");
+    FILE *f = fopen(path.c_str(), "rb");
+		std::cout << "Data handler: read label vector" << std::endl;
 
     if(f)
     {
@@ -89,63 +95,69 @@ void data_handler::read_feature_labels(std::string path)
                     
             } else
             {
-                std::cout << "Error Reading from File." << std::endl;
-                exit(1);
+                std::cout << "Error reading from file. " << i << std::endl;
+                exit(3);
             }
         }
       std::cout << "Successfully read and stored " << data_array->size() << " feature labels." << std::endl;  
     } else
     {
         std::cout << "Could not find the file." << std::endl;
-        exit(1);
+        exit(4);
     }
 }
 
 void data_handler::split_data()
 {
-    std::unordered_set<int> used_indexes;
+    std::unordered_set<int> used_indices;
     int train_size = data_array->size() * TRAIN_SET_PERCENT;
     int test_size = data_array->size() * TEST_SET_PERCENT;
     int validation_size = data_array->size() * VALIDATION_SET_PERCENT;
 
     // Training Data
-
+		std::cout << "Preparing training split." << std::endl;
     int count = 0;
     while(count < train_size)
     {
-        int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
-        if(used_indexes.find(rand_index) == used_indexes.end())
+				
+        // int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
+        int rand_index = randomNum(0, data_array->size() - 1);
+        if(used_indices.find(rand_index) == used_indices.end())
         {
             training_data->push_back(data_array->at(rand_index));
-            used_indexes.insert(rand_index);
+            used_indices.insert(rand_index);
             count++;
         }
     }
 
     // Test Data
+		std::cout << "Preparing ttest split." << std::endl;
 
     count = 0;
     while(count < test_size)
     {
-        int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
-        if(used_indexes.find(rand_index) == used_indexes.end())
+        // int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
+        int rand_index = randomNum(0, data_array->size() - 1);
+        if(used_indices.find(rand_index) == used_indices.end())
         {
             test_data->push_back(data_array->at(rand_index));
-            used_indexes.insert(rand_index);
+            used_indices.insert(rand_index);
             count++;
         }
     }
 
     // Validation Data
+		std::cout << "Preparing validation split." << std::endl;
 
     count = 0;
     while(count < validation_size)
     {
-        int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
-        if(used_indexes.find(rand_index) == used_indexes.end())
+        // int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
+        int rand_index = randomNum(0, data_array->size() - 1);
+        if(used_indices.find(rand_index) == used_indices.end())
         {
             validation_data->push_back(data_array->at(rand_index));
-            used_indexes.insert(rand_index);
+            used_indices.insert(rand_index);
             count++;
         }
     }
@@ -167,7 +179,7 @@ void data_handler::count_classes()
         }
     }
     num_classes = count;
-    std::cout << "Successfully Extracted " << num_classes << " Unique Classes." << std::endl;
+    std::cout << "Successfully extracted " << num_classes << " unique classes." << std::endl;
 }
 
 uint32_t data_handler::convert_to_little_endian(const unsigned char* bytes)
