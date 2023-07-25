@@ -1,0 +1,7 @@
+- files beginning with 'train' are the training set, containing 6e4 samples
+
+- files beginning with 't10k' are the test set, containing 1e4 samples
+
+- all files have the '.gz' extension
+
+- the images are 28 x 28 pixels in size
