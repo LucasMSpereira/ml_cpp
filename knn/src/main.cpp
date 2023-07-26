@@ -27,7 +27,6 @@ int main() {
     printf("*********\nK = %i\n*********\n", i);
     if (i == 1) {
       knearest->set_k(1);
-      knearest->test_performance();
       performance = knearest->validate_performance();
       best_performance = performance;
     } else {
@@ -40,4 +39,5 @@ int main() {
     }
   }
   knearest->set_k(best_k);
+  knearest->test_performance();
 }
