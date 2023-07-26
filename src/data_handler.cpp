@@ -162,9 +162,9 @@ void data_handler::split_data()
         }
     }
 
-    printf("Training Data Size: %lu.\n", training_data->size());
-    printf("Test Data Size: %lu.\n", test_data->size());
-    printf("Validation Data Size: %lu.\n", validation_data->size());
+    std::cout << "Training data size: " << training_data->size() << "." << std::endl;
+    std::cout << "Test data size: " << test_data->size() << "." << std::endl;
+    std::cout << "Validation data size: " << validation_data->size() << "." << std::endl;
 }
 void data_handler::count_classes()
 {
