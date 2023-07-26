@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <random>
 #include <unordered_set>
 #include <iostream>
 #include ".\data.h"
@@ -34,6 +35,7 @@ class data_handler {
 		void read_feature_labels(std::string path);
 		void split_data();
 		void count_classes();
+    int get_class_counts();
 		
 		uint32_t convert_to_little_endian(const unsigned char* bytes);
 

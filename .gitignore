@@ -2,3 +2,5 @@
 build
 *.pdb
 *.obj
+*.ilk
+*.exe
