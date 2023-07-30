@@ -1,10 +1,12 @@
-#include "..\include\knn.h"
 #include <cmath>
 #include <cstdio>
 #include <limits>
 #include <map>
 #include <iostream>
+#include "..\include\knn.h"
 #include "..\..\include\data_handler.h"
+#include "..\..\include\coheir.h"
+#include "..\..\include\data.h"
 
 knn::knn(int val) {k = val;}
 knn::knn() {/*Nothing*/}
@@ -12,45 +14,43 @@ knn::~knn() {/*Nothing*/}
 
 // Determine k-nearest points given source.
 void knn::find_knearest(data *query_point) {
-  neighbors = new std::vector<data *>;
+  neighbors = new std::vector<data *>; 
   double min = std::numeric_limits<double>::max();
   double previous_min = min;
 
   int index{0};
   for (int i = 0; i < k; i++) {
     if (i == 0) {
-      for (int j = 0; j < training_data->size(); j++) {
-        double distance = calculate_distance(query_point, training_data->at(j));
-        training_data->at(j)->set_distance(distance);
+      for (int j = 0; j < getTrainPtr()->size(); j++) {
+        double distance = calculate_distance(query_point, getTrainPtr()->at(j));
+        getTrainPtr()->at(j)->set_distance(distance);
         if (distance < min) {
           min = distance;
           index = j;
         }
       }
-    neighbors->push_back(training_data->at(index));
+    neighbors->push_back(getTrainPtr()->at(index));
     previous_min = min;
     min = std::numeric_limits<double>::max();
     } else{
-      for (int j = 0; j < training_data->size(); j++) {
-        double distance = calculate_distance(query_point, training_data->at(j));
-        training_data->at(j)->set_distance(distance);
+      for (int j = 0; j < getTrainPtr()->size(); j++) {
+        double distance = calculate_distance(query_point, getTrainPtr()->at(j));
+        getTrainPtr()->at(j)->set_distance(distance);
         if (distance > previous_min && distance < min) {
           min = distance;
           index = j;
         }
       }
     }
-    neighbors->push_back(training_data->at(index));
+    neighbors->push_back(getTrainPtr()->at(index));
     previous_min = min;
     min = std::numeric_limits<double>::max();
   }
 };
-// Set data splits.
-void knn::set_training_data(std::vector<data*> *vect) {training_data = vect;}
-void knn::set_test_data(std::vector<data*> *vect) {test_data = vect;}
-void knn::set_validation_data(std::vector<data*> *vect) {validation_data = vect;}
+
 // Set number of neighbors to consider.
 void knn::set_k(int val) {k = val;}
+
 // Model inference (classify image).
 int knn::predict() {
   std::map<uint8_t, int> class_freq;
@@ -72,6 +72,7 @@ int knn::predict() {
   delete neighbors;
   return best;
 }
+
 // Calculate distance between points.
 double knn::calculate_distance(data* query_point, data* input) {
   double distance{0.0};
@@ -84,6 +85,7 @@ double knn::calculate_distance(data* query_point, data* input) {
     }
     return sqrt(distance);
 }
+
 // Model performance in validation split.
 double knn::validate_performance() {
   std::cout << "knn::validate_performance()" << std::endl;
@@ -91,19 +93,19 @@ double knn::validate_performance() {
   int count{0};
   int data_index{0};
 
-  for (data *query_point : *validation_data) {
+  for (data *query_point : *getValPtr()) {
     find_knearest(query_point);
     int prediction = predict();
     if (prediction == query_point->get_label()) {count++;}
     data_index++;
-    // std::cout << data_index << "/" << validation_data->size() <<
-    //   " - Current performance = " << ((double)count * 100.0) / ((double)data_index) << "%" << std::endl;
-    printf(
-      "%i/%i - Current validation performance = %.2f%%\n",
-      data_index, validation_data->size(), ((double)count * 100.0) / ((double)data_index)
-    );
+    if (data_index % 500 == 0) {
+      printf(
+        "%i/%i - Current validation performance = %.2f%%\n",
+        data_index, getValPtr()->size(), ((double)count * 100.0) / ((double)data_index)
+      );
+    }
   }
-  current_performance = ((double)count * 100.0) / ((double)validation_data->size());
+  current_performance = ((double)count * 100.0) / ((double)getValPtr()->size());
   std::cout << "Validation performance for K = " << k << ": " << current_performance << "%" << std::endl;
   return current_performance;
 }
@@ -114,17 +116,24 @@ double knn::test_performance() {
   double current_performance{0.0};
   int count{0};
   int data_index{0};
-  for (data *query_point : *test_data) {
+  for (data *query_point : *getTestPtr()) {
     find_knearest(query_point);
     int prediction = predict();
     if (prediction == query_point->get_label()) {count++;}
     data_index++;
-    printf(
-      "%i/%i - Current test performance = %.2f%%\n",
-      data_index, test_data->size(), ((double)count * 100.0) / ((double)data_index)
-    ); 
+    if (data_index % 500 == 0) {
+      printf(
+        "%i/%i - Current test performance = %.2f%%\n",
+        data_index, getTestPtr()->size(), ((double)count * 100.0) / ((double)data_index)
+      );
+    }
   }
-  current_performance = ((double)count * 100.0) / ((double)test_data->size());
+  current_performance = ((double)count * 100.0) / ((double)getTestPtr()->size());
   std::cout << "Current performance = " << current_performance << std::endl;
   return current_performance;
 }
+
+// knn public methods to access coheir protected members
+std::vector<data*>* knn::getTrainPtr() {return coheir::training_data;}
+std::vector<data*>* knn::getTestPtr() {return coheir::test_data;}
+std::vector<data*>* knn::getValPtr() {return coheir::validation_data;}

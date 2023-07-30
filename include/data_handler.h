@@ -10,6 +10,8 @@
 #include <iostream>
 #include ".\data.h"
 
+int randomNum(int low, int high);
+
 class data_handler {
 
 	std::vector<data *> *data_array; // All data (not splitted).
