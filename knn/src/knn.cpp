@@ -1,9 +1,9 @@
-#include "..\include\knn.h"
 #include <cmath>
 #include <cstdio>
 #include <limits>
 #include <map>
 #include <iostream>
+#include "..\include\knn.h"
 #include "..\..\include\data_handler.h"
 #include "..\..\include\coheir.h"
 #include "..\..\include\data.h"
@@ -50,6 +50,7 @@ void knn::find_knearest(data *query_point) {
 
 // Set number of neighbors to consider.
 void knn::set_k(int val) {k = val;}
+
 // Model inference (classify image).
 int knn::predict() {
   std::map<uint8_t, int> class_freq;
@@ -92,15 +93,17 @@ double knn::validate_performance() {
   int count{0};
   int data_index{0};
 
-    for (data *query_point : *getValPtr()) {
+  for (data *query_point : *getValPtr()) {
     find_knearest(query_point);
     int prediction = predict();
     if (prediction == query_point->get_label()) {count++;}
     data_index++;
-    printf(
-      "%i/%i - Current validation performance = %.2f%%\n",
-      data_index, getValPtr()->size(), ((double)count * 100.0) / ((double)data_index)
-    );
+    if (data_index % 500 == 0) {
+      printf(
+        "%i/%i - Current validation performance = %.2f%%\n",
+        data_index, getValPtr()->size(), ((double)count * 100.0) / ((double)data_index)
+      );
+    }
   }
   current_performance = ((double)count * 100.0) / ((double)getValPtr()->size());
   std::cout << "Validation performance for K = " << k << ": " << current_performance << "%" << std::endl;
@@ -118,10 +121,12 @@ double knn::test_performance() {
     int prediction = predict();
     if (prediction == query_point->get_label()) {count++;}
     data_index++;
-    printf(
-      "%i/%i - Current test performance = %.2f%%\n",
-      data_index, getTestPtr()->size(), ((double)count * 100.0) / ((double)data_index)
-    ); 
+    if (data_index % 500 == 0) {
+      printf(
+        "%i/%i - Current test performance = %.2f%%\n",
+        data_index, getTestPtr()->size(), ((double)count * 100.0) / ((double)data_index)
+      );
+    }
   }
   current_performance = ((double)count * 100.0) / ((double)getTestPtr()->size());
   std::cout << "Current performance = " << current_performance << std::endl;
