@@ -9,6 +9,7 @@
 #include "..\..\include\data.h"
 
 void knnProcedures(data_handler* dh) {
+  printf("\nknn.\n");
   knn *knearest = new knn();
   knearest->set_training_data(dh->get_training_data());
   knearest->set_test_data(dh->get_test_data());
@@ -18,7 +19,9 @@ void knnProcedures(data_handler* dh) {
   double best_performance{0.0};
   int best_k{1};
   for (int i = 1; i <= 4; i++) {
-    printf("*********\nK = %i\n*********\n", i);
+    std::cout << "********* K = " << i << " (";
+    timeStr();
+    std::cout << ")" << std::endl;
     if (i == 1) {
       knearest->set_k(1);
       performance = knearest->validate_performance();

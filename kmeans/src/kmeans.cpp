@@ -15,13 +15,14 @@ char timeStr() {
 }
 
 void kmeansProcedures(data_handler* dh) {
+  printf("kmeans.\n");
   double performance = 0.0;
   double best_performance = 0.0;
   int best_k = 1;
 
   for (
     int k = dh -> get_class_counts();
-    k < 50;
+    k < 15;
     // k < dh -> get_training_data() -> size() * 0.1;
     k++
   ) {

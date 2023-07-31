@@ -4,8 +4,9 @@
 #include <vector>
 #include "../../include/data.h"
 #include "../../include/coheir.h"
+#include "../../include/data_handler.h"
 
-void knnProcedures (data_handler*) {};
+void knnProcedures(data_handler*);
 
 // High level knn class definition.
 class knn : public coheir{
