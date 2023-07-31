@@ -12,7 +12,7 @@ int main() {
 	dh->count_classes();
 
 	// Follow procedures for kmeans
-	// kmeansProcedures(dh);
+	kmeansProcedures(dh);
 
 	// Follow procedures for knn
 	knnProcedures(dh);

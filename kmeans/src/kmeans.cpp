@@ -22,7 +22,7 @@ void kmeansProcedures(data_handler* dh) {
 
   for (
     int k = dh -> get_class_counts();
-    k < 15;
+    k < 13;
     // k < dh -> get_training_data() -> size() * 0.1;
     k++
   ) {
