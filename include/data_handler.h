@@ -10,6 +10,8 @@
 #include <iostream>
 #include ".\data.h"
 
+char timeStr();
+
 int randomNum(int low, int high);
 
 class data_handler {
