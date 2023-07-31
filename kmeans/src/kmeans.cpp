@@ -62,6 +62,8 @@ kmeans::kmeans(int k) {
   used_indices = new std::unordered_set<int>;
 }
 
+/* Initialize certain number of clusters. Each one uses
+a different random sample as the starting centroid. */
 void kmeans::init_clusters() {
   for (int i = 0; i < num_clusters; i++) {
     int index = randomNum(0, training_data -> size() - 1);
@@ -84,6 +86,9 @@ void kmeans::init_clusters_for_each_class() {
   }
 }
 
+/* Train kmeans model. Randomly sample from training data split.
+Calculate distance of current sample to each centroid. Add point
+to closest cluster*/
 void kmeans::train() {
   printf("Training.\n");
   while (used_indices -> size() < training_data -> size()) {
