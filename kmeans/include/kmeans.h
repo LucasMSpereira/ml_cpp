@@ -7,7 +7,9 @@
 #include <cmath>
 #include <map>
 #include "../../include/coheir.h"
-// #include "../../include/data_handler.h"
+#include "../../include/data_handler.h"
+
+void kmeansProcedures(data_handler*) {};
 
 typedef struct cluster {
   // Cluster properties.

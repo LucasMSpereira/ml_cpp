@@ -5,6 +5,8 @@
 #include "../../include/data.h"
 #include "../../include/coheir.h"
 
+void knnProcedures (data_handler*) {};
+
 // High level knn class definition.
 class knn : public coheir{
   int k; // Number of neighbors to consider.
