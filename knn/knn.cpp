@@ -3,10 +3,10 @@
 #include <limits>
 #include <map>
 #include <iostream>
-#include "..\include\knn.h"
-#include "..\..\include\data_handler.h"
-#include "..\..\include\coheir.h"
-#include "..\..\include\data.h"
+#include "knn.h"
+#include "..\include\data_handler.h"
+#include "..\include\coheir.h"
+#include "..\include\data.h"
 
 void knnProcedures(data_handler* dh) {
   printf("\nknn.\n");

@@ -1,5 +1,5 @@
-#include "../include/kmeans.h"
-#include "../../include/data_handler.h"
+#include "./kmeans.h"
+#include "../include/data_handler.h"
 #include <cstdio>
 #include <ctime>
 

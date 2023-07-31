@@ -6,8 +6,8 @@
 #include <iostream>
 #include <cmath>
 #include <map>
-#include "../../include/coheir.h"
-#include "../../include/data_handler.h"
+#include "../include/coheir.h"
+#include "../include/data_handler.h"
 
 void kmeansProcedures(data_handler*);
 

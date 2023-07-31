@@ -1,7 +1,7 @@
 #include "..\include\data.h"
 #include "..\include\data_handler.h"
-#include "..\knn\include\knn.h"
-#include "..\kmeans\include\kmeans.h"
+#include "..\knn\knn.h"
+#include "..\kmeans\kmeans.h"
 
 int main() {
 
