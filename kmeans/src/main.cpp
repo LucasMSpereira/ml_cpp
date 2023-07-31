@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <ctime>
 
-char timeStrrrr() {
+char timeStr() {
   time_t now = time(0);
   tm *ltm = localtime(&now);
 
@@ -33,7 +33,7 @@ int main() {
     k++
   ) {
     std::cout << "********* K = " << k << " (";
-    timeStrrrr();
+    timeStr();
     std::cout << ")" << std::endl;
     kmeans* km = new kmeans(k);
     // Get data splits.
