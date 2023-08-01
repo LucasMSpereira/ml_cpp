@@ -1,4 +1,7 @@
 #include "..\include\data_handler.h"
+#include <random>
+#include <chrono>
+#include <algorithm>
 
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -8,24 +11,23 @@ int randomNum(int low, int high) {
     return dist(gen);
 }
 
-data_handler::data_handler()
-{
+data_handler::data_handler() {
     data_array = new std::vector<data *>;
     test_data = new std::vector<data *>;
     training_data = new std::vector<data *>;
     validation_data = new std::vector<data *>;
 }
 
-data_handler::~data_handler(){/* Free dynamically allocated memory.*/}
+data_handler::~data_handler() {/* Free dynamically allocated memory.*/}
 
-int data_handler::get_class_counts(){return num_classes;}
+int data_handler::get_class_counts() {return num_classes;}
 
 void data_handler::read_feature_vector(std::string path) {
     uint32_t header[4]; // Magic // Num Images // Row Size // Col Size
     unsigned char bytes[4];
-		
+
     std::cout << "Data handler: read feature vector." << std::endl;
-		
+
     FILE *f = fopen(path.c_str(), "rb");
     if(f) {
         for(int i = 0; i < 4; i++) {
@@ -37,7 +39,7 @@ void data_handler::read_feature_vector(std::string path) {
         std::cout << "Done getting input file header." << std::endl;
         
         int image_size = header[2] * header[3];
-
+        // Iterate in all images
         for(int i = 0; i < header[1]; i++) {
             data *d = new data();
             uint8_t element[1];
@@ -102,58 +104,23 @@ void data_handler::read_feature_labels(std::string path)
     }
 }
 
-void data_handler::split_data()
-{
-    std::unordered_set<int> used_indices;
+// Split dataset in training, validation and test
+void data_handler::split_data() {
+    // Amount of samples in each split
     int train_size = data_array->size() * TRAIN_SET_PERCENT;
     int test_size = data_array->size() * TEST_SET_PERCENT;
     int validation_size = data_array->size() * VALIDATION_SET_PERCENT;
-
-    // Training data.
-    std::cout << "Preparing training split." << std::endl;
-    int count = 0;
-    while(count < train_size)
-    {
-				
-        // int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
-        int rand_index = randomNum(0, data_array->size() - 1);
-        if(used_indices.find(rand_index) == used_indices.end())
-        {
-            training_data->push_back(data_array->at(rand_index));
-            used_indices.insert(rand_index);
-            count++;
-        }
-    }
-
-    // Test Data
-    std::cout << "Preparing test split." << std::endl;
-
-    count = 0;
-    while(count < test_size)
-    {
-        // int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
-        int rand_index = randomNum(0, data_array->size() - 1);
-        if(used_indices.find(rand_index) == used_indices.end())
-        {
-            test_data->push_back(data_array->at(rand_index));
-            used_indices.insert(rand_index);
-            count++;
-        }
-    }
-
-    // Validation Data
-    std::cout << "Preparing validation split." << std::endl;
-
-    count = 0;
-    while(count < validation_size)
-    {
-        // int rand_index = rand() % data_array->size(); // 0 & data_array->size() - 1
-        int rand_index = randomNum(0, data_array->size() - 1);
-        if(used_indices.find(rand_index) == used_indices.end())
-        {
-            validation_data->push_back(data_array->at(rand_index));
-            used_indices.insert(rand_index);
-            count++;
+    // Shuffle dataset
+    unsigned num = std::chrono::system_clock::now().time_since_epoch().count();
+    std::shuffle(data_array->begin(), data_array->end(), std::default_random_engine(num));
+    // Split data
+    for (int i = 0; i < data_array -> size(); i++) {
+        if (i <= train_size - 1) {
+            training_data->push_back(data_array->at(i));
+        } else if (i <= test_size + train_size - 1) {
+            test_data->push_back(data_array->at(i));
+        } else {
+            validation_data->push_back(data_array->at(i));
         }
     }
 
