@@ -10,18 +10,24 @@
 
 void knnProcedures(data_handler* dh) {
   printf("\nknn.\n");
+  // Instantiate knn object.
   knn *knearest = new knn();
+  // Get data splits.
   knearest->set_training_data(dh->get_training_data());
   knearest->set_test_data(dh->get_test_data());
   knearest->set_validation_data(dh->get_validation_data());
-
+  // Initialize variables.
   double performance{0.0};
   double best_performance{0.0};
   int best_k{1};
+  // Iterate in k values to be tested.
   for (int i = 1; i <= 4; i++) {
+    // Print starting time of current loop.
     std::cout << "********* K = " << i << " (";
     timeStr();
     std::cout << ")" << std::endl;
+    // Set k, validate performance, and save result if
+    // there was improvement.
     if (i == 1) {
       knearest->set_k(1);
       performance = knearest->validate_performance();
@@ -84,17 +90,24 @@ void knn::set_k(int val) {k = val;}
 
 // Model inference (classify image).
 int knn::predict() {
+  // Mapping from class to number of occurrences of class.
   std::map<uint8_t, int> class_freq;
+  // Iterate in neighbors.
   for (int i = 0; i < neighbors->size(); i++) {
+    // If label of current neighbor isn't in class_freq.
     if (class_freq.find(neighbors->at(i)->get_label()) == class_freq.end()) {
+      // Add label to class_freq with an initial count of 1.
       class_freq[neighbors->at(i)->get_label()] = 1;
-    } else {
+    } else { // If class already in class_freq.
+      // Increment occurence count of class.
       class_freq[neighbors->at(i)->get_label()]++;
     }
   }
   int best{0};
   int max{0};
+  // Iterate in class_freq.
   for (auto kv : class_freq) {
+    // Get most frequent class and it's occurrence count.
     if (kv.second > max) {
       max = kv.second;
       best = kv.first;
@@ -123,13 +136,17 @@ double knn::validate_performance() {
   double current_performance{0.0};
   int count{0};
   int data_index{0};
-
+  // Iterate in validation split.
   for (data *query_point : *getValPtr()) {
+    // Find k-nearest points to 'query_point'.
     find_knearest(query_point);
+    // Classify 'query_point' based on majority voting.
     int prediction = predict();
-    if (prediction == query_point->get_label()) {count++;}
+    // Count number of correct predictions.
+    prediction == query_point->get_label() ? count++ : false;
+    // Count number of samples processed.
     data_index++;
-    if (data_index % 500 == 0) {
+    if (data_index % 10 == 0) { // Occasional print
       printf(
         "%i/%i - Current validation performance = %.2f%%\n",
         data_index, getValPtr()->size(), ((double)count * 100.0) / ((double)data_index)
