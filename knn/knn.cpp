@@ -1,3 +1,4 @@
+#include <matplot/matplot.h>
 #include <cmath>
 #include <cstdio>
 #include <limits>
@@ -52,7 +53,7 @@ knn::~knn() {/*Nothing*/}
 // Determine k-nearest points given source.
 void knn::find_knearest(data *query_point) {
   neighbors = new std::vector<data *>; 
-  double min = std::numeric_limits<double>::max();
+  double min = 1e100;
   double previous_min = min;
 
   int index{0};
@@ -68,7 +69,7 @@ void knn::find_knearest(data *query_point) {
       }
     neighbors->push_back(getTrainPtr()->at(index));
     previous_min = min;
-    min = std::numeric_limits<double>::max();
+    min = 1e100;
     } else{
       for (int j = 0; j < getTrainPtr()->size(); j++) {
         double distance = calculate_distance(query_point, getTrainPtr()->at(j));
@@ -81,7 +82,7 @@ void knn::find_knearest(data *query_point) {
     }
     neighbors->push_back(getTrainPtr()->at(index));
     previous_min = min;
-    min = std::numeric_limits<double>::max();
+    min = 1e100;
   }
 };
 
