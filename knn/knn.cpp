@@ -137,7 +137,6 @@ double knn::validate_performance() {
   int printFreq = 10; // Sample interval of printing.
   // Vector to store evolution of performance
   std::vector<double> perfs;
-  matplot::vector_1d x = matplot::linspace(0, 2 * matplot::pi);
   double current_performance{0.0};
   int count{0}; // Count correct classficiations
   int data_index{0}; // Count samples processed
@@ -155,7 +154,9 @@ double knn::validate_performance() {
     current_performance = count * 100.0 / data_index;
     if (current_performance < 100) perfs.push_back(current_performance);
     if (data_index % printFreq == 0) { // Occasional print
-      if (perfs.size() > 9) matplot::plot(x, perfs);
+      if (perfs.size() > 9) matplot::plot(
+        matplot::linspace(0, perfs.size(), perfs.size() + 1), perfs
+      );
       printf(
         "Sample: %i/%i - Current validation performance = %.2f%%\n",
         data_index, getValPtr()->size(), current_performance
