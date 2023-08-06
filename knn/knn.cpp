@@ -1,4 +1,5 @@
 #include <matplot/matplot.h>
+#include <vector>
 #include <cmath>
 #include <cstdio>
 #include <limits>
@@ -133,10 +134,13 @@ double knn::calculate_distance(data* query_point, data* input) {
 
 // Model performance in validation split.
 double knn::validate_performance() {
-  std::cout << "knn::validate_performance()" << std::endl;
+  int printFreq = 10; // Sample interval of printing.
+  // Vector to store evolution of performance
+  std::vector<double> perfs;
+  matplot::vector_1d x = matplot::linspace(0, 2 * matplot::pi);
   double current_performance{0.0};
-  int count{0};
-  int data_index{0};
+  int count{0}; // Count correct classficiations
+  int data_index{0}; // Count samples processed
   // Iterate in validation split.
   for (data *query_point : *getValPtr()) {
     // Find k-nearest points to 'query_point'.
@@ -147,14 +151,18 @@ double knn::validate_performance() {
     prediction == query_point->get_label() ? count++ : false;
     // Count number of samples processed.
     data_index++;
-    if (data_index % 10 == 0) { // Occasional print
+    // Update performance and store in perfs
+    current_performance = count * 100.0 / data_index;
+    if (current_performance < 100) perfs.push_back(current_performance);
+    if (data_index % printFreq == 0) { // Occasional print
+      if (perfs.size() > 9) matplot::plot(x, perfs);
       printf(
-        "%i/%i - Current validation performance = %.2f%%\n",
-        data_index, getValPtr()->size(), ((double)count * 100.0) / ((double)data_index)
+        "Sample: %i/%i - Current validation performance = %.2f%%\n",
+        data_index, getValPtr()->size(), current_performance
       );
     }
   }
-  current_performance = ((double)count * 100.0) / ((double)getValPtr()->size());
+  current_performance = count * 100.0 / getValPtr()->size();
   std::cout << "Validation performance for K = " << k << ": " << current_performance << "%" << std::endl;
   return current_performance;
 }
