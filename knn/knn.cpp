@@ -10,7 +10,7 @@
 #include "..\include\coheir.h"
 #include "..\include\data.h"
 
-void knnProcedures(data_handler* dh) {
+void knnProcedures(data_handler* dh, int printFreq) {
   printf("\nknn.\n");
   // Instantiate knn object.
   knn *knearest = new knn();
@@ -32,11 +32,11 @@ void knnProcedures(data_handler* dh) {
     // there was improvement.
     if (i == 1) {
       knearest->set_k(1);
-      performance = knearest->validate_performance();
+      performance = knearest->validate_performance(printFreq);
       best_performance = performance;
     } else {
       knearest->set_k(i);
-      performance = knearest->validate_performance();
+      performance = knearest->validate_performance(printFreq);
       if (performance > best_performance) {
         best_performance = performance;
         best_k = i;
@@ -133,13 +133,13 @@ double knn::calculate_distance(data* query_point, data* input) {
 }
 
 // Model performance in validation split.
-double knn::validate_performance() {
-  int printFreq = 10; // Sample interval of printing.
-  // Vector to store evolution of performance
+// printFreq is the sample interval of printing.
+double knn::validate_performance(int printFreq) {
+  // Vector to store evolution of performance.
   std::vector<double> perfs;
   double current_performance{0.0};
-  int count{0}; // Count correct classficiations
-  int data_index{0}; // Count samples processed
+  int count{0}; // Count correct classifications.
+  int data_index{0}; // Count samples processed.
   // Iterate in validation split.
   for (data *query_point : *getValPtr()) {
     // Find k-nearest points to 'query_point'.

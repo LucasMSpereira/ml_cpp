@@ -20,6 +20,6 @@ int main() {
 	// kmeansProcedures(dh);
 
 	// Follow procedures for knn
-	knnProcedures(dh);
+	knnProcedures(dh, 50);
 
 }

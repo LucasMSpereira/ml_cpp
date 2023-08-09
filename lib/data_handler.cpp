@@ -6,11 +6,13 @@
 std::random_device rd;
 std::mt19937 gen(rd());
 
+// Generate random number inside desired range.
 int randomNum(int low, int high) {
     std::uniform_int_distribution<> dist(low, high);
     return dist(gen);
 }
 
+// Object that hold data and splits.
 data_handler::data_handler() {
     data_array = new std::vector<data *>;
     test_data = new std::vector<data *>;
