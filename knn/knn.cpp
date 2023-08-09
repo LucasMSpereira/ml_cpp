@@ -1,34 +1,42 @@
+#include <matplot/matplot.h>
+#include <vector>
 #include <cmath>
 #include <cstdio>
 #include <limits>
 #include <map>
 #include <iostream>
-#include "..\include\knn.h"
-#include "..\..\include\data_handler.h"
-#include "..\..\include\coheir.h"
-#include "..\..\include\data.h"
+#include "knn.h"
+#include "..\include\data_handler.h"
+#include "..\include\coheir.h"
+#include "..\include\data.h"
 
-void knnProcedures(data_handler* dh) {
+void knnProcedures(data_handler* dh, int printFreq) {
   printf("\nknn.\n");
+  // Instantiate knn object.
   knn *knearest = new knn();
+  // Get data splits.
   knearest->set_training_data(dh->get_training_data());
   knearest->set_test_data(dh->get_test_data());
   knearest->set_validation_data(dh->get_validation_data());
-
+  // Initialize variables.
   double performance{0.0};
   double best_performance{0.0};
   int best_k{1};
+  // Iterate in k values to be tested.
   for (int i = 1; i <= 4; i++) {
+    // Print starting time of current loop.
     std::cout << "********* K = " << i << " (";
     timeStr();
     std::cout << ")" << std::endl;
+    // Set k, validate performance, and save result if
+    // there was improvement.
     if (i == 1) {
       knearest->set_k(1);
-      performance = knearest->validate_performance();
+      performance = knearest->validate_performance(printFreq);
       best_performance = performance;
     } else {
       knearest->set_k(i);
-      performance = knearest->validate_performance();
+      performance = knearest->validate_performance(printFreq);
       if (performance > best_performance) {
         best_performance = performance;
         best_k = i;
@@ -46,7 +54,7 @@ knn::~knn() {/*Nothing*/}
 // Determine k-nearest points given source.
 void knn::find_knearest(data *query_point) {
   neighbors = new std::vector<data *>; 
-  double min = std::numeric_limits<double>::max();
+  double min = 1e100;
   double previous_min = min;
 
   int index{0};
@@ -62,7 +70,7 @@ void knn::find_knearest(data *query_point) {
       }
     neighbors->push_back(getTrainPtr()->at(index));
     previous_min = min;
-    min = std::numeric_limits<double>::max();
+    min = 1e100;
     } else{
       for (int j = 0; j < getTrainPtr()->size(); j++) {
         double distance = calculate_distance(query_point, getTrainPtr()->at(j));
@@ -75,7 +83,7 @@ void knn::find_knearest(data *query_point) {
     }
     neighbors->push_back(getTrainPtr()->at(index));
     previous_min = min;
-    min = std::numeric_limits<double>::max();
+    min = 1e100;
   }
 };
 
@@ -84,17 +92,24 @@ void knn::set_k(int val) {k = val;}
 
 // Model inference (classify image).
 int knn::predict() {
+  // Mapping from class to number of occurrences of class.
   std::map<uint8_t, int> class_freq;
+  // Iterate in neighbors.
   for (int i = 0; i < neighbors->size(); i++) {
+    // If label of current neighbor isn't in class_freq.
     if (class_freq.find(neighbors->at(i)->get_label()) == class_freq.end()) {
+      // Add label to class_freq with an initial count of 1.
       class_freq[neighbors->at(i)->get_label()] = 1;
-    } else {
+    } else { // If class already in class_freq.
+      // Increment occurence count of class.
       class_freq[neighbors->at(i)->get_label()]++;
     }
   }
   int best{0};
   int max{0};
+  // Iterate in class_freq.
   for (auto kv : class_freq) {
+    // Get most frequent class and it's occurrence count.
     if (kv.second > max) {
       max = kv.second;
       best = kv.first;
@@ -118,25 +133,37 @@ double knn::calculate_distance(data* query_point, data* input) {
 }
 
 // Model performance in validation split.
-double knn::validate_performance() {
-  std::cout << "knn::validate_performance()" << std::endl;
+// printFreq is the sample interval of printing.
+double knn::validate_performance(int printFreq) {
+  // Vector to store evolution of performance.
+  std::vector<double> perfs;
   double current_performance{0.0};
-  int count{0};
-  int data_index{0};
-
+  int count{0}; // Count correct classifications.
+  int data_index{0}; // Count samples processed.
+  // Iterate in validation split.
   for (data *query_point : *getValPtr()) {
+    // Find k-nearest points to 'query_point'.
     find_knearest(query_point);
+    // Classify 'query_point' based on majority voting.
     int prediction = predict();
-    if (prediction == query_point->get_label()) {count++;}
+    // Count number of correct predictions.
+    prediction == query_point->get_label() ? count++ : false;
+    // Count number of samples processed.
     data_index++;
-    if (data_index % 500 == 0) {
+    // Update performance and store in perfs
+    current_performance = count * 100.0 / data_index;
+    if (current_performance < 100) perfs.push_back(current_performance);
+    if (data_index % printFreq == 0) { // Occasional print
+      if (perfs.size() > 9) matplot::plot(
+        matplot::linspace(0, perfs.size(), perfs.size() + 1), perfs
+      );
       printf(
-        "%i/%i - Current validation performance = %.2f%%\n",
-        data_index, getValPtr()->size(), ((double)count * 100.0) / ((double)data_index)
+        "Sample: %i/%i - Current validation performance = %.2f%%\n",
+        data_index, getValPtr()->size(), current_performance
       );
     }
   }
-  current_performance = ((double)count * 100.0) / ((double)getValPtr()->size());
+  current_performance = count * 100.0 / getValPtr()->size();
   std::cout << "Validation performance for K = " << k << ": " << current_performance << "%" << std::endl;
   return current_performance;
 }

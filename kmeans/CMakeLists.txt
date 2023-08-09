@@ -1,4 +1,4 @@
 add_library(
   kmeans
-  src/kmeans.cpp
+  ./kmeans.cpp
 )

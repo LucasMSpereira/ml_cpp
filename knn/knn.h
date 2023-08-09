@@ -2,11 +2,11 @@
 #define __KNN_H
 
 #include <vector>
-#include "../../include/data.h"
-#include "../../include/coheir.h"
-#include "../../include/data_handler.h"
+#include "../include/data.h"
+#include "../include/coheir.h"
+#include "../include/data_handler.h"
 
-void knnProcedures(data_handler*);
+void knnProcedures(data_handler*, int);
 
 // High level knn class definition.
 class knn : public coheir{
@@ -30,7 +30,7 @@ class knn : public coheir{
     // Calculate distance between points.
     double calculate_distance(data* query_point, data* input);
     // Validate and test performance in case of model change
-    double validate_performance();
+    double validate_performance(int printFreq);
     double test_performance();
     // 'knn' public methods to access 'coheir' protected members
     std::vector<data*>* getTrainPtr();

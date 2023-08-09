@@ -1,4 +1,5 @@
 add_library(
   knn
-  src/knn.cpp
+  ./knn.cpp
 )
+target_link_libraries(knn PUBLIC Matplot++::matplot)

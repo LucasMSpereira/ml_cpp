@@ -1,7 +1,8 @@
 #include "..\include\data.h"
 #include "..\include\data_handler.h"
-#include "..\knn\include\knn.h"
-#include "..\kmeans\include\kmeans.h"
+#include "..\knn\knn.h"
+#include "..\kmeans\kmeans.h"
+
 
 int main() {
 
@@ -16,9 +17,9 @@ int main() {
 	dh->count_classes();
 
 	// Follow procedures for kmeans
-	kmeansProcedures(dh);
+	// kmeansProcedures(dh);
 
 	// Follow procedures for knn
-	knnProcedures(dh);
+	knnProcedures(dh, 50);
 
 }
